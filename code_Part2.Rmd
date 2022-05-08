@@ -1,0 +1,154 @@
+---
+title: "Final Project Part 2"
+author: "Qi An and Hanwen Xing"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Two csv files used for this Rmd file are the feature matrices outputed from our Python file after image processing and feature selections. The main purpose of this Rmd file is to perform Exploratory Data Analysis on two feature matrix data sets and Data Mining on model results by using clustering. 
+
+## First Dataset
+
+```{r}
+library(factoextra)
+library(gridExtra)
+```
+
+```{r}
+#Data Preparation
+df <- read.csv('~/Desktop/Data Mining/Project2/first_data.csv')
+df <- df[, -dim(df)[2]]
+characters <- sub("_.*", "", df[,1])
+avg <- matrix(NA, ncol=32, nrow=5)
+for(i in 1:5){
+  char <- unique(characters)[i]
+  temp <- df[grepl(char, df$X), ][,-1]
+  avg[i,] <- apply(temp, 2, mean)
+}
+rownames(avg) <- unique(characters)
+
+#Metrics 1
+par(mfrow = c(2, 3))
+barplot(avg[1,], ylim = c(0,30), main = 'Distribution of wu')
+barplot(avg[2,], ylim = c(0,30), main = 'Distribution of kang')
+barplot(avg[3,], ylim = c(0,30), main = 'Distribution of yi')
+barplot(avg[4,], ylim = c(0,30), main = 'Distribution of ji')
+barplot(avg[5,], ylim = c(0,30), main = 'Distribution of fu')
+
+#Metric2 - Euclidean Distance
+dist(avg,method="euclidean")
+
+```
+
+## First Dataset Clustering
+
+```{r}
+#Clustering Method-kmeans
+km_out <- kmeans(df[,-1], centers=5)
+
+#Clustering Results Analysis
+#result <- data.frame(characters = characters, cluster = km_out$cluster)
+table(km_out$cluster)
+table(km_out$cluster, characters)
+
+index <- which(apply(df[,-1],2,sum)==0)+1
+fviz_cluster(km_out, data = df[,-c(1,index)])
+
+#Trying to decrease clustering sizes
+k2 <- kmeans(df[,-1], centers=2)
+k3 <- kmeans(df[,-1], centers=3)
+k4 <- kmeans(df[,-1], centers=4)
+
+p1 <- fviz_cluster(k2, geom = "point", data = df[,-c(1,index)]) + 
+  ggtitle("k = 2")
+p2 <- fviz_cluster(k3, geom = "point",  data = df[,-c(1,index)]) + 
+  ggtitle("k = 3")
+p3 <- fviz_cluster(k4, geom = "point",  data = df[,-c(1,index)]) + 
+  ggtitle("k = 4")
+p4 <- fviz_cluster(km_out, geom = "point",  data = df[,-c(1,index)]) + 
+  ggtitle("k = 5")
+
+grid.arrange(p1, p2, p3, p4, nrow = 2)
+
+#Quantitatively
+km_out$withinss
+km_out$betweenss
+
+avg_ts <- matrix(NA, ncol=32, nrow=5)
+for (i in 1:5){
+  df_new <- df[,-1]
+  cluster <- df_new[km_out$cluster==i,]
+  avg_ts[i,] <- apply(cluster,2,mean)
+}
+plot(avg_ts[1,], type = 'l', xaxt='n',
+     ylab = 'Average Count',
+     main = 'Average Feature Count across Clusters')
+lines(avg_ts[2,], col = 'blue')
+lines(avg_ts[3,], col = 'red')
+lines(avg_ts[4,], col = 'green')
+lines(avg_ts[5,], col = 'pink')
+
+```
+
+
+## Second Dataset
+
+```{r}
+df <- read.csv('~/Desktop/Data Mining/Project2/second_data.csv')
+df <- df[, -dim(df)[2]]
+characters <- sub("_.*", "", df[,1])
+avg <- matrix(NA, ncol=32, nrow=5)
+for(i in 1:5){
+  char <- unique(characters)[i]
+  temp <- df[grepl(char, df$X), ][,-1]
+  avg[i,] <- apply(temp, 2, mean)
+}
+rownames(avg) <- unique(characters)
+
+#Metrics 1
+par(mfrow = c(2, 3))
+barplot(avg[1,], ylim = c(0,30), main = 'Distribution of wu')
+barplot(avg[2,], ylim = c(0,30), main = 'Distribution of cheng')
+barplot(avg[3,], ylim = c(0,30), main = 'Distribution of ge')
+barplot(avg[4,], ylim = c(0,30), main = 'Distribution of shang')
+barplot(avg[5,], ylim = c(0,30), main = 'Distribution of wan')
+
+#Metric2 - Euclidean Distance
+dist(avg,method="euclidean")
+
+```
+## Second Dataset Clustering
+
+```{r}
+km_out <- kmeans(df[,-1], centers=5)
+
+#Clustering Results Analysis
+#result <- data.frame(characters = characters, cluster = km_out$cluster)
+table(km_out$cluster)
+table(km_out$cluster, characters)
+
+index <- which(apply(df[,-1],2,sum)==0)+1
+fviz_cluster(km_out, data = df[,-c(1,index)])
+
+#Trying to decrease clustering sizes
+k2 <- kmeans(df[,-1], centers=2)
+k3 <- kmeans(df[,-1], centers=3)
+k4 <- kmeans(df[,-1], centers=4)
+
+p1 <- fviz_cluster(k2, geom = "point", data = df[,-c(1,index)]) + 
+  ggtitle("k = 2")
+p2 <- fviz_cluster(k3, geom = "point",  data = df[,-c(1,index)]) + 
+  ggtitle("k = 3")
+p3 <- fviz_cluster(k4, geom = "point",  data = df[,-c(1,index)]) + 
+  ggtitle("k = 4")
+p4 <- fviz_cluster(km_out, geom = "point",  data = df[,-c(1,index)]) + 
+  ggtitle("k = 5")
+
+grid.arrange(p1, p2, p3, p4, nrow = 2)
+```
+
