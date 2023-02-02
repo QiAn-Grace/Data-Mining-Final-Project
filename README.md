@@ -14,10 +14,10 @@ This contains pictures of five characters: 伍(wu), 乘(cheng), 个(ge), 上(sha
 
 ### Different Code File Explained:
 #### Main Code:
-The part of Data Collection and Processing, Feature Selection and Machine Learning Models (written by Python)
+The part of Data Collection and Processing, Feature Selection and Machine Learning Models (written in Python)
 
 #### code_Part2: 
-The part of Exploratory Data Analysis （written by R）
+The part of Exploratory Data Analysis （written in R）
 
 #### Font Generating: 
 'Iteration' we try (codes which can help us generate picture by ourselves)
